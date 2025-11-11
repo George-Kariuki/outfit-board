@@ -1,0 +1,12 @@
+{
+  "displayName": "Outfit Board",
+  "components": [
+    {
+      "name": "OutfitBoard",
+      "manifest": "./src/components/OutfitBoard/manifest.json"
+    }
+  ],
+  "author": "",
+  "description": "",
+  "logo": "./example-logo.png"
+}

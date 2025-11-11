@@ -1,0 +1,122 @@
+{
+  "displayName": "OutfitBoard",
+  "defaultWidth": 350,
+  "defaultHeight": 450,
+  "resizeX": true,
+  "resizeY": true,
+  "icon": "./icon.png",
+  "props": [
+    {
+      "name": "inputImages",
+      "displayName": "Input Images",
+      "type": "list",
+      "role": "data",
+      "default": []
+    },
+    {
+      "name": "initialState",
+      "displayName": "Initial State",
+      "type": "text",
+      "role": "data",
+      "default": ""
+    },
+    {
+      "name": "boardWidth",
+      "displayName": "Board Width",
+      "type": "number",
+      "role": "style",
+      "default": 350
+    },
+    {
+      "name": "boardHeight",
+      "displayName": "Board Height",
+      "type": "number",
+      "role": "style",
+      "default": 450
+    },
+    {
+      "name": "backgroundColor",
+      "displayName": "Background Color",
+      "type": "color",
+      "role": "style",
+      "default": "#FFFFFF"
+    },
+    {
+      "name": "gridEnabled",
+      "displayName": "Enable Grid",
+      "type": "boolean",
+      "role": "style",
+      "default": false
+    },
+    {
+      "name": "gridSize",
+      "displayName": "Grid Size",
+      "type": "number",
+      "role": "style",
+      "default": 20
+    },
+    {
+      "name": "exportTrigger",
+      "displayName": "Export Trigger",
+      "type": "boolean",
+      "role": "trigger",
+      "default": false
+    },
+    {
+      "name": "onExport",
+      "displayName": "On Export",
+      "type": "action",
+      "role": "action"
+    },
+    {
+      "name": "onStateChange",
+      "displayName": "On State Change",
+      "type": "action",
+      "role": "action"
+    }
+  ],
+  "childComponents": [
+    {
+      "name": "Styling",
+      "displayName": "Styling",
+      "props": [
+        {
+          "name": "toolbarColor",
+          "displayName": "Toolbar Color",
+          "type": "color",
+          "role": "style",
+          "default": "#000000"
+        },
+        {
+          "name": "handleColor",
+          "displayName": "Handle Color",
+          "type": "color",
+          "role": "style",
+          "default": "#3B82F6"
+        },
+        {
+          "name": "selectionOutlineColor",
+          "displayName": "Selection Outline Color",
+          "type": "color",
+          "role": "style",
+          "default": "#3B82F6"
+        },
+        {
+          "name": "shadowEnabled",
+          "displayName": "Enable Shadows",
+          "type": "boolean",
+          "role": "style",
+          "default": true
+        },
+        {
+          "name": "rotationHandleShape",
+          "displayName": "Rotation Handle Shape",
+          "type": "text",
+          "role": "style",
+          "default": "circle"
+        }
+      ]
+    }
+  ]
+}
+
