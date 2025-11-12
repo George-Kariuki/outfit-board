@@ -6,7 +6,8 @@
   "logo": "./logo.png",
   "price": 0,
   "demoAppURL": "https://adalo.com",
-  "supportURL": "https://adalo.com",
+  "supportURL": "https://github.com/George-Kariuki/outfit-board",
+  "requiresThirdPartySubscription": false,
   "components": [
     {
       "name": "OutfitBoard",

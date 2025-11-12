@@ -1,20 +1,31 @@
 {
   "name": "outfit-board",
-  "description": "",
-  "version": "1.0.0",
+  "version": "1.0.3",
+  "description": "Canvas-based outfit builder component. Drag, resize, rotate wardrobe items to create outfits.",
   "main": "index.js",
-  "license": "ISC",
-  "author": "",
+  "author": "George Kariuki",
+  "license": "MIT",
   "scripts": {
     "start": "adalo dev",
+    "dev": "adalo dev",
+    "build": "adalo build",
     "login": "adalo login",
     "publish": "adalo publish"
   },
+  "dependencies": {
+    "konva": "^9.3.22",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-konva": "^18.2.14",
+    "use-image": "^1.1.4"
+  },
   "devDependencies": {
     "@adalo/cli": "^1.0.6",
-    "react": "^16.14.0",
     "react-art": "^16.13.1",
-    "react-dom": "^16.14.0",
     "react-native-web": "^0.9.13"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }

@@ -1,12 +1,16 @@
 {
   "displayName": "Outfit Board",
+  "author": "George Kariuki",
+  "description": "Canvas-based outfit builder component. Drag, resize, rotate wardrobe items to create outfits.",
+  "details": "Allows drag & drop styling of clothing items. Multi-image canvas, export PNG, state save/load, full configurability.",
+  "logo": "./example-logo.png",
+  "demoAppURL": "https://preview.adalo.com/a4fe41a0-1b00-46e2-977a-aad0439e4bac/screens",
+  "supportURL": "https://github.com/George-Kariuki/outfit-board",
+  "requiresThirdPartySubscription": false,
   "components": [
     {
       "name": "OutfitBoard",
       "manifest": "./src/components/OutfitBoard/manifest.json"
     }
-  ],
-  "author": "",
-  "description": "",
-  "logo": "./example-logo.png"
+  ]
 }
