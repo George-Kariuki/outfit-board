@@ -8,38 +8,53 @@ import OutfitBoardWeb from './OutfitBoard.web';
 // rnSource: format to use directly in React Native <Image source={rnSource} />
 // url: string url for web <img> or for konva/use-image
 function normalizeImageValue(img) {
-  // img can be:
-  // - a string URL
-  // - an object like { uri: 'https://...' }
-  // - an object like { image: { uri: 'https://...' } }
-  // - possibly a local require (number) for bundled assets
-  if (!img) return null;
+  if (!img && img !== 0) return null;
 
-  // string e.g. "https://..."
+  // Plain string URL
   if (typeof img === 'string') {
     return { rnSource: { uri: img }, url: img };
   }
 
-  // already a RN source object like { uri: 'https://...' }
-  if (typeof img === 'object' && img.uri && typeof img.uri === 'string') {
-    return { rnSource: img, url: img.uri };
-  }
-
-  // nested Adalo shape: { image: { uri: '...' } }
-  if (img.image && img.image.uri) {
-    return { rnSource: { uri: img.image.uri }, url: img.image.uri };
-  }
-
-  // If it's already a local require (number), use it directly for RN,
-  // but we don't have a web url for konva in that case.
+  // Local require (number) used for bundled assets in RN
   if (typeof img === 'number') {
     return { rnSource: img, url: null };
   }
 
-  // fallback: try to coerce to string
-  const maybeUri = img?.uri || img?.image?.uri || String(img);
-  if (maybeUri) {
-    return { rnSource: { uri: maybeUri }, url: maybeUri };
+  // If it's already a React Native Image source object like { uri: 'https://...' }
+  if (typeof img === 'object') {
+    // Standard RN shape
+    if (img.uri && typeof img.uri === 'string') {
+      return { rnSource: img, url: img.uri };
+    }
+
+    // Adalo nested shape: { image: { uri: '...' } }
+    if (img.image && img.image.uri && typeof img.image.uri === 'string') {
+      return { rnSource: { uri: img.image.uri }, url: img.image.uri };
+    }
+
+    // Some variants: { data: { uri: '...' } } or { url: '...' }
+    if (img.data && img.data.uri && typeof img.data.uri === 'string') {
+      return { rnSource: { uri: img.data.uri }, url: img.data.uri };
+    }
+
+    if (img.url && typeof img.url === 'string') {
+      return { rnSource: { uri: img.url }, url: img.url };
+    }
+
+    // If the object is already in the form expected by Konva/useImage (a URL)
+    // try to extract any string-like field
+    const maybeUri = img?.uri || img?.image?.uri || img?.url || img?.data?.uri;
+    if (maybeUri && typeof maybeUri === 'string') {
+      return { rnSource: { uri: maybeUri }, url: maybeUri };
+    }
+  }
+
+  // Fallback: coerce to string (last resort)
+  try {
+    const s = String(img);
+    if (s) return { rnSource: { uri: s }, url: s };
+  } catch (e) {
+    // ignore
   }
 
   return null;
@@ -78,15 +93,15 @@ class OutfitBoard extends Component {
 
     // More robust check: compare lengths or shallow contents instead of reference
     const imagesChanged = 
-      !inputImages && prevProps.inputImages ||
-      inputImages && !prevProps.inputImages ||
+      (!inputImages && prevProps.inputImages) ||
+      (inputImages && !prevProps.inputImages) ||
       (inputImages && prevProps.inputImages && (
         inputImages.length !== prevProps.inputImages.length ||
         inputImages.some((img, idx) => {
           const prevImg = prevProps.inputImages[idx];
           const normalized = normalizeImageValue(img);
           const prevNormalized = normalizeImageValue(prevImg);
-          return normalized?.url !== prevNormalized?.url;
+          return (normalized?.url || null) !== (prevNormalized?.url || null);
         })
       ));
 

@@ -1,5 +1,5 @@
 {
-  "displayName": "Outfit Board",
+  "displayName": "Outfit Boardv1.0.5",
   "author": "George Kariuki",
   "description": "Canvas-based outfit builder component. Drag, resize, rotate wardrobe items to create outfits.",
   "details": "Allows drag & drop styling of clothing items. Multi-image canvas, export PNG, state save/load, full configurability.",

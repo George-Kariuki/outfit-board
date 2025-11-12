@@ -1,6 +1,6 @@
 {
   "name": "outfit-board",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Canvas-based outfit builder component. Drag, resize, rotate wardrobe items to create outfits.",
   "main": "index.js",
   "author": "George Kariuki",
