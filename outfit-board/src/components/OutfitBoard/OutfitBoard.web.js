@@ -3,6 +3,47 @@ import { Stage, Layer, Image as KonvaImage, Transformer, Group } from 'react-kon
 import useImage from 'use-image';
 import styles from './Styles';
 
+// Helper that returns { rnSource, url } where
+// rnSource: format to use directly in React Native <Image source={rnSource} />
+// url: string url for web <img> or for konva/use-image
+function normalizeImageValue(img) {
+  // img can be:
+  // - a string URL
+  // - an object like { uri: 'https://...' }
+  // - an object like { image: { uri: 'https://...' } }
+  // - possibly a local require (number) for bundled assets
+  if (!img) return null;
+
+  // string e.g. "https://..."
+  if (typeof img === 'string') {
+    return { rnSource: { uri: img }, url: img };
+  }
+
+  // already a RN source object like { uri: 'https://...' }
+  if (typeof img === 'object' && img.uri && typeof img.uri === 'string') {
+    return { rnSource: img, url: img.uri };
+  }
+
+  // nested Adalo shape: { image: { uri: '...' } }
+  if (img.image && img.image.uri) {
+    return { rnSource: { uri: img.image.uri }, url: img.image.uri };
+  }
+
+  // If it's already a local require (number), use it directly for RN,
+  // but we don't have a web url for konva in that case.
+  if (typeof img === 'number') {
+    return { rnSource: img, url: null };
+  }
+
+  // fallback: try to coerce to string
+  const maybeUri = img?.uri || img?.image?.uri || String(img);
+  if (maybeUri) {
+    return { rnSource: { uri: maybeUri }, url: maybeUri };
+  }
+
+  return null;
+}
+
 const URLImage = ({ item, isSelected, onSelect, onTransformEnd, transformerRef }) => {
   const [image] = useImage(item.src);
   const shapeRef = React.useRef();
@@ -248,9 +289,10 @@ class OutfitBoardWeb extends Component {
           <div style={styles.imageGallery}>
             {inputImages && inputImages.length > 0 ? (
               inputImages.map((image, index) => {
-                // Handle Adalo image format: { uri } or { uri, filename, size } or just string
-                const imageUri = typeof image === 'string' ? image : (image?.uri || image?.image?.uri || image);
-                if (!imageUri) return null;
+                // For web, we need the URL string for <img> tag
+                // Normalize to get the URL string
+                const normalized = normalizeImageValue(image);
+                if (!normalized || !normalized.url) return null;
                 
                 return (
                   <div
@@ -259,7 +301,7 @@ class OutfitBoardWeb extends Component {
                     onClick={() => onAddImage(image)}
                   >
                     <img
-                      src={imageUri}
+                      src={normalized.url}
                       alt={`Image ${index + 1}`}
                       style={styles.imageThumbnail}
                     />

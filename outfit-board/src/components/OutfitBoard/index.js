@@ -4,6 +4,47 @@ import { Stage, Layer, Image as KonvaImage, Transformer, Group } from 'react-kon
 import useImage from 'use-image';
 import OutfitBoardWeb from './OutfitBoard.web';
 
+// Helper that returns { rnSource, url } where
+// rnSource: format to use directly in React Native <Image source={rnSource} />
+// url: string url for web <img> or for konva/use-image
+function normalizeImageValue(img) {
+  // img can be:
+  // - a string URL
+  // - an object like { uri: 'https://...' }
+  // - an object like { image: { uri: 'https://...' } }
+  // - possibly a local require (number) for bundled assets
+  if (!img) return null;
+
+  // string e.g. "https://..."
+  if (typeof img === 'string') {
+    return { rnSource: { uri: img }, url: img };
+  }
+
+  // already a RN source object like { uri: 'https://...' }
+  if (typeof img === 'object' && img.uri && typeof img.uri === 'string') {
+    return { rnSource: img, url: img.uri };
+  }
+
+  // nested Adalo shape: { image: { uri: '...' } }
+  if (img.image && img.image.uri) {
+    return { rnSource: { uri: img.image.uri }, url: img.image.uri };
+  }
+
+  // If it's already a local require (number), use it directly for RN,
+  // but we don't have a web url for konva in that case.
+  if (typeof img === 'number') {
+    return { rnSource: img, url: null };
+  }
+
+  // fallback: try to coerce to string
+  const maybeUri = img?.uri || img?.image?.uri || String(img);
+  if (maybeUri) {
+    return { rnSource: { uri: maybeUri }, url: maybeUri };
+  }
+
+  return null;
+}
+
 class OutfitBoard extends Component {
   state = {
     items: [],
@@ -26,6 +67,7 @@ class OutfitBoard extends Component {
     }
 
     if (inputImages && inputImages.length > 0) {
+      console.log('inputImages in componentDidMount:', JSON.stringify(inputImages, null, 2));
       this.addImagesFromList(inputImages);
     }
   }
@@ -34,7 +76,22 @@ class OutfitBoard extends Component {
     const { inputImages, onStateChange, initialState } = this.props;
     const { items } = this.state;
 
-    if (inputImages !== prevProps.inputImages && inputImages && inputImages.length > 0) {
+    // More robust check: compare lengths or shallow contents instead of reference
+    const imagesChanged = 
+      !inputImages && prevProps.inputImages ||
+      inputImages && !prevProps.inputImages ||
+      (inputImages && prevProps.inputImages && (
+        inputImages.length !== prevProps.inputImages.length ||
+        inputImages.some((img, idx) => {
+          const prevImg = prevProps.inputImages[idx];
+          const normalized = normalizeImageValue(img);
+          const prevNormalized = normalizeImageValue(prevImg);
+          return normalized?.url !== prevNormalized?.url;
+        })
+      ));
+
+    if (imagesChanged && inputImages && inputImages.length > 0) {
+      console.log('inputImages changed in componentDidUpdate:', JSON.stringify(inputImages, null, 2));
       this.addImagesFromList(inputImages);
     }
 
@@ -58,16 +115,16 @@ class OutfitBoard extends Component {
     if (!images || !Array.isArray(images)) return;
     
     const newItems = images.map((img, index) => {
-      // Handle Adalo image format: { uri } or { uri, filename, size } or just string
-      const imageUri = typeof img === 'string' ? img : (img?.uri || img?.image?.uri || img);
-      if (!imageUri) return null;
+      const normalized = normalizeImageValue(img);
+      if (!normalized || !normalized.url) return null;
       
-      const existingItem = this.state.items.find(item => item.src === imageUri);
+      const existingItem = this.state.items.find(item => item.src === normalized.url);
       if (existingItem) return null;
       
       return {
         id: `item-${Date.now()}-${index}`,
-        src: imageUri,
+        src: normalized.url,        // for konva/web use
+        rnSource: normalized.rnSource, // for native rendering
         x: 50 + (index * 60),
         y: 50 + (index * 60),
         width: 200,
@@ -90,13 +147,13 @@ class OutfitBoard extends Component {
   };
 
   addImageToCanvas = (imageData) => {
-    // Handle Adalo image format: { uri } or { uri, filename, size } or just string
-    const imageUri = typeof imageData === 'string' ? imageData : (imageData?.uri || imageData?.image?.uri || imageData);
-    if (!imageUri) return;
+    const normalized = normalizeImageValue(imageData);
+    if (!normalized || !normalized.url) return;
     
     const newItem = {
       id: `item-${Date.now()}-${Math.random()}`,
-      src: imageUri,
+      src: normalized.url,        // for konva/web use
+      rnSource: normalized.rnSource, // for native rendering
       x: 50 + (this.state.items.length * 60),
       y: 50 + (this.state.items.length * 60),
       width: 200,
@@ -353,10 +410,10 @@ class OutfitBoard extends Component {
           <View style={styles.imageGallery}>
             {inputImages && inputImages.length > 0 ? (
               inputImages.map((image, index) => {
-                // Handle Adalo image format: { uri } or { uri, filename, size } or just string
-                const imageUri = typeof image === 'string' ? image : (image?.uri || image?.image?.uri || image);
-                if (!imageUri) return null;
-                
+                const normalized = normalizeImageValue(image);
+                if (!normalized) return null;
+
+                // For RN Image use the rnSource directly (don't wrap an object again)
                 return (
                   <TouchableOpacity
                     key={index}
@@ -364,7 +421,7 @@ class OutfitBoard extends Component {
                     onPress={() => this.addImageToCanvas(image)}
                   >
                     <Image
-                      source={{ uri: imageUri }}
+                      source={normalized.rnSource}
                       style={styles.imageThumbnail}
                       resizeMode="cover"
                     />
@@ -378,7 +435,7 @@ class OutfitBoard extends Component {
             )}
           </View>
         </View>
-      </View>
+		</View>
     );
   }
 }
@@ -474,8 +531,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    alignItems: 'center',
-    justifyContent: 'center',
+		alignItems: 'center',
+		justifyContent: 'center',
   },
   placeholderText: {
     fontSize: 16,
