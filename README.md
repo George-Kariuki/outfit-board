@@ -2,6 +2,8 @@
 
 A canvas-based outfit builder component. Enables users to drag, resize, rotate, and arrange wardrobe images on a board that can be exported as a PNG collage.
 
+> 📖 **For a complete build guide**, see [BUILD_GUIDE.md](./BUILD_GUIDE.md) - A comprehensive step-by-step guide for building Adalo components from scratch.
+
 ## Setup Instructions
 
 ### 1. Create the component
